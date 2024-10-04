@@ -7,10 +7,7 @@ import numpy as np
 
 st.title("CNN JOB MON")
 
-def send2url(user_input):
-    # 서버로 보낼 URL 정의 (로컬 서버)
-    url = "http://127.0.0.1:8002"  # 실제로 데이터를 보낼 URL
-
+def send2url(user_input, url="http://172.17.0.1:8002"):
     # 버튼을 클릭하면 POST 요청을 보냄
     if st.button("Send Message"):
         if user_input:
