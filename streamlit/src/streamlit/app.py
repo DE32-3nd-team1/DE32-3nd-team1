@@ -37,4 +37,4 @@ my_input = st.text_input("입력하세요")
 st.write("입력한 내용:", my_input)
 
 # 입력 내용을 서버로 전송
-send2url(my_input, "http://52.78.215.75:8002")
+send2url(my_input, "http://172.31.32.196:8002")
