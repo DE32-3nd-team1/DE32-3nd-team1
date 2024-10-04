@@ -9,10 +9,10 @@ import os
 st.title("CNN JOB MON")
 
 def send2url(user_input, url="http://172.17.0.1:8002"):
+    print(url)
     # 버튼을 클릭하면 POST 요청을 보냄
     if st.button("Send Message"):
         if user_input:
-            url = os.getenv("")
             # 보낼 데이터를 정의 (JSON 형식)
             data = {"message": user_input}
 
@@ -37,5 +37,4 @@ my_input = st.text_input("입력하세요")
 st.write("입력한 내용:", my_input)
 
 # 입력 내용을 서버로 전송
-send2url(my_input, http://172.31.32.196:8002)
-
+send2url(my_input, "http://52.78.215.75:8002")

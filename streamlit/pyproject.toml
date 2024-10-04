@@ -1,6 +1,6 @@
 [project]
 name = "streamlit"
-version = "0.1.2"
+version = "0.1.3"
 description = "Default template for PDM package"
 authors = [
     {name = "lsiwh37249", email = "lsiwh37249@gmail.com"},
