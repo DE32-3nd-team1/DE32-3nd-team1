@@ -5,7 +5,7 @@ WORKDIR /code
 RUN apt update
 RUN pip install --no-cache-dir uvicorn
 RUN pip install --no-cache-dir --upgrade pip
-#COPY src/b_fastapi/main.py /code
+COPY src/b_fastapi/main.py /code
 #COPY run.sh /code/run.sh
 
 RUN pip install --no-cache-dir --upgrade git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@fastapi
