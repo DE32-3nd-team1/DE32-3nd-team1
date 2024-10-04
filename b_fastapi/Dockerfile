@@ -7,6 +7,6 @@ RUN apt update
 #COPY src/b_fastapi/main.py /code
 #COPY run.sh /code/run.sh
 
-RUN pip install --no-cache-dir --upgrade https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@fastapi
+RUN pip install --no-cache-dir --upgrade git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@fastapi
 
-#CMD ["sh", "run.sh"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002", "--reload"]
