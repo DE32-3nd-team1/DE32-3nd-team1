@@ -37,4 +37,8 @@ my_input = st.text_input("입력하세요")
 st.write("입력한 내용:", my_input)
 
 # 입력 내용을 서버로 전송
-send2url(my_input, "http://172.31.32.196:8002")
+#AWS
+#send2url(my_input, "http://172.31.32.196:8002")
+
+#local
+send2url(my_input, "http://172.0.0.1:8002")

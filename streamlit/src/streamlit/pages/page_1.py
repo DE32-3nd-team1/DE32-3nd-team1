@@ -1,6 +1,26 @@
 import streamlit as st
-
+from datetime import date, datetime
 import json
+
+def save_uploaded_file(directory, file) :
+    # 1. 디렉토리가 있는지 확인하여, 없으면 먼저, 디렉토리부터 만든다.
+    if not os.path.exists(directory) :
+        os.makedirs(directory)
+
+    # 2. 디렉토리가 있으니, 파일을 저장한다.
+    with open(os.path.join(directory, file.name), 'wb') as f:
+        f.write(file.getbuffer())
+
+    # 3. 파일 저장이 성공했으니, 화면에 성공했다고 보여주면서 리턴
+    return st.success('{} 에 {} 파일이 저장되었습니다.'.format(directory, file.name))
+
+def get_predict():
+    sample_data = {
+        "name": "John",
+        "age": 30,
+        "city": "New York"
+    }
+    return json_data
 
 # 레이아웃 설정
 col1, col2 = st.columns(2)
@@ -16,12 +36,8 @@ with col1:
 # 오른쪽 상단 - JSON 출력
 with col2:
     st.header("예측 결과")
-    sample_data = {
-        "name": "John",
-        "age": 30,
-        "city": "New York"
-    }
-    st.json(sample_data)
+    data = get_predict()
+    st.json(data)
 
 # 하단 - 텍스트 입력
 st.header("정정 ")
