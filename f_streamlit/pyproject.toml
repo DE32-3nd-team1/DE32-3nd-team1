@@ -1,9 +1,9 @@
 [project]
-name = "streamlit"
-version = "0.1.3"
+name = "f_streamlit"
+version = "0.1.0"
 description = "Default template for PDM package"
 authors = [
-    {name = "lsiwh37249", email = "lsiwh37249@gmail.com"},
+    {name = "kim", email = "lsiwh32749@gmail.com"},
 ]
 dependencies = [
     "streamlit>=1.38.0",

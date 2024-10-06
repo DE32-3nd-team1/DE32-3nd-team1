@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import date, datetime
 import json
-from streamlit.st_module import save_uploaded_file, get_predict, checkout_box_input
+from f_streamlit.st_module import save_uploaded_file, get_predict, check_box_input
 
 # 레이아웃 설정
 col1, col2 = st.columns(2)
