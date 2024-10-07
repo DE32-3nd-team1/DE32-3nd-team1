@@ -1,5 +1,4 @@
-#FROM apache/airflow:2.6.1
-FROM apache/airflow:2.6.1-python3.9
+FROM apache/airflow:2.6.1
 USER root
 
 # 필요한 시스템 패키지 설치 (vim, git 등)
