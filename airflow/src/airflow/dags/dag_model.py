@@ -83,7 +83,7 @@ with DAG(
     virtualenv_task = PythonVirtualenvOperator(
         task_id="virtualenv_python",
         python_callable=callable_virtualenv,
-        requirements=["git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@0.2.0/airflow"],
+        requirements=["git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@0.2.0/airflow/#subdirectory=airflow"],
         system_site_packages=True,
     )
 
