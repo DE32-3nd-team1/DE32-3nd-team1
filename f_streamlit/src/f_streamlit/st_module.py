@@ -21,7 +21,7 @@ def get_predict():
 
 def check_box_input(which : str):
     # 체크박스 생성
-    is_checked = st.checkbox(f"{which}")
+    is_checked = st.checkbox(f"{which}", key=f"check_submit_{which}")
 
     # 체크박스 상태에 따라 메시지 출력
     if is_checked:
