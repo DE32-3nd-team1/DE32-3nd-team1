@@ -105,57 +105,41 @@ df = request_model_result()
 col1, col2 = st.columns(2)
 col3, col4 = st.columns(2)
 
-# 왼쪽 상단 - 사진 출력
-with col1:
-    file_path="/home/kim/code/DE32-3nd-team1/f_streamlit/src/f_streamlit/test.png"
-    from PIL import Image # 위에서 선언 후 사용해야한다.
 
-    img = Image.open(file_path)
-    st.image(img)
-    #show_imag기e()
+file_path="/home/kim/code/DE32-3nd-team1/f_streamlit/src/f_streamlit/test.png"
+from PIL import Image # 위에서 선언 후 사용해야한다.
+
+img = Image.open(file_path)
+st.image(img)
 
 l = [0]
 # 오른쪽 상단 - JSON 출력
-with col2:
+with col1:
     st.header("예측 결과")
 
     st.dataframe(df)
     #goods+model 테이블 join한 것을 조회 :
-    l = select_rows()
+    #l = select_rows()
     if l is None:
         l = [0]
     #print(df)
     #l = df.index.to_list()
 
-selected_section = st.sidebar.selectbox("섹션을 선택하세요:", l)
-
-#각 섹션에 대한 내용 정의
-if selected_section == l[0]:
-    st.header("홈")
-    st.write("여기는 홈 페이지입니다.")
-
-elif selected_section == "데이터 업로드":
-    st.header("데이터 업로드")
-    uploaded_file = st.file_uploader("파일을 업로드하세요", type=["csv", "txt"])
-    if uploaded_file is not None:
-        st.success("파일이 업로드되었습니다.")
-
-elif selected_section == "예측 결과":
-    st.header("예측 결과")
-    st.write("여기에서 예측 결과를 확인할 수 있습니다.")
-    # 예측 결과에 대한 추가 코드를 여기에 추가
-
-elif selected_section == "정정":
-    st.header("정정")
-    st.write("정정할 내용을 입력하세요.")
-    # 정정 입력에 대한 추가 코드를 여기에 추가
-
-# 제출 버튼 생성
-if st.button("제출"):
-    if labels:
-        print("url 요청")
-        print(labels)
-        response = submit_labels_to_api(labels)
+with col2:
+    st.subheader("정정할 데이터")
+    # st.data_editor 사용 - 사용자가 데이터를 직접 수정할 수 있음
+    edited_df = st.data_editor(df, num_rows="dynamic", key="editable_table")
+    json_data = edited_df.to_json(orient="records", force_ascii=False, indent=4)
+    # '변경 완료' 버튼
+    if st.button("변경 완료"):
+        print("url 요청 - 수정된 데이터")
+        # 수정된 데이터 전송 로직 추가
+        # response = submit_labels_to_api(json_data)
         st.success("정정 데이터를 성공적으로 제출했습니다.")
-    else:
-        st.warning("제출할 데이터가 없습니다.")
+
+    # '그대로 제출' 버튼
+    if st.button("그대로 제출"):
+        print("url 요청 - 원본 데이터")
+        # 원본 데이터 전송 로직 추가
+        # response = submit_labels_to_api(df.to_json(orient="records", force_ascii=False, indent=4))
+        st.success("기본 데이터를 성공적으로 제출했습니다.")
