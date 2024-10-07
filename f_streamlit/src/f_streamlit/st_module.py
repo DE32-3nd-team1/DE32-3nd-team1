@@ -25,8 +25,8 @@ def check_box_input(which : str):
 
     # 체크박스 상태에 따라 메시지 출력
     if is_checked:
-        st.write(f"{which} is checked!")
-        user_text = st.text_input(f"{which} : ")
+        user_text = st.text_input(f"{which}")
+        return user_text
 
 def json2dataframe(json):
     df = pd.dataframe(json)
