@@ -36,7 +36,7 @@ def create_mariadb_connection(session=None):
         print(f"Failed to create connection {conn.conn_id}: {e}")
 
 with DAG(
-    'r',
+    'receipt',
     default_args={
         'depends_on_past': False,
         'email_on_failure': False,
@@ -56,13 +56,14 @@ with DAG(
         mariadb_hook = MySqlHook(mysql_conn_id='my_mariadb_conn')
         connection = mariadb_hook.get_conn()
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM receipt LIMIT 10;")  # 쿼리 실행
+        cursor.execute("SELECT * FROM model LIMIT 10;")  # 쿼리 실행
         records = cursor.fetchall()
         for record in records:
             print(record)  # 데이터를 출력하거나 원하는 처리를 수행
 
     def callable_virtualenv():
-        print("*" * 3000)
+        from model.donut import test
+        test()
 
 
     # MariaDB 연결
@@ -79,11 +80,11 @@ with DAG(
         provide_context=True,
     )
 
-    virtualenv_task = PythonVirtualenvOperator(
+    virtualenv_task = PythonOperator(
         task_id="virtualenv_python",
         python_callable=callable_virtualenv,
-        requirements=["git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@airflow"],
-        system_site_packages=False,
+        #requirements=["git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@0.2.0/airflow"],
+        #system_site_packages=True,
     )
 
 
