@@ -62,7 +62,7 @@ with DAG(
             print(record)  # 데이터를 출력하거나 원하는 처리를 수행
 
     def callable_virtualenv():
-        from model.donut import test
+        from airflow.model.donut import test
         test()
 
 
@@ -80,11 +80,11 @@ with DAG(
         provide_context=True,
     )
 
-    virtualenv_task = PythonOperator(
+    virtualenv_task = PythonVirtualenvOperator(
         task_id="virtualenv_python",
         python_callable=callable_virtualenv,
-        #requirements=["git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@0.2.0/airflow"],
-        #system_site_packages=True,
+        requirements=["git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@0.2.0/airflow"],
+        system_site_packages=True,
     )
 
 
@@ -93,4 +93,4 @@ with DAG(
     task_end = EmptyOperator(task_id='end', trigger_rule="all_done")
 
     # 작업 순서 설정
-    task_start >> create_connection_task >> fetch_data_task >> task_end
+    task_start >> virtualenv_task >> create_connection_task >> fetch_data_task >> task_end
