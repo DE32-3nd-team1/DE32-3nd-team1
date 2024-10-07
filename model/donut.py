@@ -20,3 +20,6 @@ def process(path):
     output = model.inference(image=image, prompt="<s_cord-v2>")
 
     return output
+
+def test():
+    print("*"*3000)
