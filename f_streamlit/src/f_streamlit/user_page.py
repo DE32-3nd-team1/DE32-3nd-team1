@@ -1,12 +1,14 @@
 import streamlit as st
 from datetime import date, datetime,time
 import json
-from f_streamlit.st_module import save_uploaded_file, get_predict, check_box_input
 import requests
+import os
+
+base_url = os.getenv("FASTAPI_URL") + ":" + str(os.getenv("FASTAPI_PORT"))
 
 # FastAPI 서버로 datetime을 전송하는 함수
 def submit_img_datetime_to_api(file, date, time, weekday):
-    url = "http://127.0.0.1:8002/upload_image/"
+    url = f"{base_url}/upload_image/"
     
     # 파일 전송을 위한 multipart/form-data 준비
     files = {
@@ -33,6 +35,7 @@ time = st.time_input("Select a time", value=time(12, 0))
 uploaded_file = st.file_uploader("이미지를 업로드하세요", type=["png", "jpg", "jpeg"])
 if uploaded_file:
     st.image(uploaded_file, caption="업로드된 이미지", use_column_width=True)
+
 weekday = ""
 if date:
     # 입력된 날짜의 요일 구하기

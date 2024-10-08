@@ -6,10 +6,12 @@ import datetime as dt
 import numpy as np
 import os
 
-st.title("CNN JOB MON")
+base_url = os.getenv("FASTAPI_URL") + ":" + str(os.getenv("FASTAPI_PORT"))
 
-def send2url(user_input, url="http://172.17.0.1:8002"):
-    print(url)
+st.title("TEAM_1")
+
+def send2url(user_input):
+    url = base_url
     # 버튼을 클릭하면 POST 요청을 보냄
     if st.button("Send Message"):
         if user_input:
@@ -41,4 +43,4 @@ st.write("입력한 내용:", my_input)
 #send2url(my_input, "http://172.31.32.196:8002")
 
 #local
-send2url(my_input, "http://172.0.0.1:8002")
+send2url(my_input)
