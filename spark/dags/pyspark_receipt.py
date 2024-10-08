@@ -20,12 +20,11 @@ with DAG(
     tags=['spark']
 ) as dag:
 
-    def hello():
-        print("hello world")
-
-    task_spark = pythonOperator(
+    task_spark = BashOperator(
             task_id = 'task_spark',
-            python_callable=hello()
+            bash_command='''
+            $SPARK_HOME/bin/spark-submit /opt/airflow/py/amount.py
+            '''
             )
 
     task_start = EmptyOperator(task_id='task_start', trigger_rule='all_done')
