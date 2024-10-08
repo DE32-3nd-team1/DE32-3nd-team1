@@ -7,6 +7,9 @@ from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from airflow.operators.python import PythonVirtualenvOperator
 from airflow.providers.mysql.hooks.mysql import MySqlHook
+from donut import DonutModel
+from PIL import Image
+import torch
 
 # MariaDB 연결을 생성하는 함수 정의
 @provide_session
@@ -61,8 +64,26 @@ with DAG(
         for record in records:
             print(record)  # 데이터를 출력하거나 원하는 처리를 수행
 
-    def callable_virtualenv():
-        print("*" * 3000)
+    model = DonutModel.from_pretrained("naver-clova-ix/donut-base-finetuned-cord-v2")
+
+    def donut():
+
+        if torch.cuda.is_available():
+            model.half()
+            device = torch.device("cuda")
+            model.to(device)
+        else:
+            device = torch.device("cpu")
+            model.encoder.to(torch.float)
+            model.to(device)
+
+        model.eval() 
+
+    def process(path):
+        image = Image.open(path).convert("RGB")
+        output = model.inference(image=image, prompt="<s_cord-v2>")
+
+        return output
 
 
     # MariaDB 연결
@@ -79,17 +100,16 @@ with DAG(
         provide_context=True,
     )
 
-    virtualenv_task = PythonVirtualenvOperator(
-        task_id="virtualenv_python",
-        python_callable=callable_virtualenv,
-        requirements=["git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@airflow"],
-        system_site_packages=False,
+    # 모델적용
+    donut_task = PythonOperator(
+        task_id='donut',
+        python_callable=donut,
+        provide_context=True,
     )
-
 
     # EmptyOperator로 시작과 끝 설정
     task_start = EmptyOperator(task_id='start')
     task_end = EmptyOperator(task_id='end', trigger_rule="all_done")
 
     # 작업 순서 설정
-    task_start >> create_connection_task >> fetch_data_task >> task_end
+    task_start >> create_connection_task >> fetch_data_task >> donut_task >> task_end
