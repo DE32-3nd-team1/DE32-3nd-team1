@@ -34,7 +34,9 @@ def dml(sql, *values):
         conn.commit()
         return cursor.rowcount
 
-sql = "select * from model"
-result = select(sql, size = -1)
-print(result)
+sql_first = "select id from model WHERE predict_bool=1 AND total IS NULL ORDER BY id LIMIT 1"
+photo_id = select(sql_first, size = 1)
+print(photo_id)
+
+sql_second = f"select * from goods WHERE model_id={photo_id}"
                                   

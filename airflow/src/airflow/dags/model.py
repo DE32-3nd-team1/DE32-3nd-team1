@@ -51,8 +51,8 @@ with DAG(
         'retry_delay': timedelta(minutes=1)
     },
     description='hello world DAG',
-    schedule_interval='@daily',
-    start_date=datetime(2024, 10, 1),
+    schedule_interval='*/3 * * * *',
+    start_date=datetime(2024, 10, 7),
     catchup=True,
     tags=['receipt'],
 ) as dag:
