@@ -31,7 +31,7 @@ ENV SPARK_NO_DAEMONIZE=true
 # DAG 파일 복사
 #COPY ./dags/pyspark_receipt.py ./dags/pyspark_receipt.py
 #COPY ./py/amount.py ./py/amount.py
-COPY requirements.txt requirements.txt
+#COPY requirements.txt requirements.txt
 
 # Spark 관련 디렉토리 생성 및 권한 부여
 RUN mkdir -p /opt/airflow/spark-3.5.1-bin-hadoop3/logs /opt/airflow/spark-3.5.1-bin-hadoop3/work /dags /logs \
