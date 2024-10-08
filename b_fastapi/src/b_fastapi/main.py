@@ -11,7 +11,7 @@ app = FastAPI()
 
 # 데이터베이스 설정
 DB_CONFIG = {
-    "host": os.getenv("DB", "43.203.223.158"),
+    "host": os.getenv("DB", "43.203.236.175"),
     "user": "team1",
     "password": "1234",
     "database": "team1",
@@ -92,7 +92,7 @@ async def get_model_result(
             with conn.cursor() as cursor:
                 # SQL 쿼리: 예측 여부가 True이고 id 값이 가장 큰 레코드 조회
                 sql = """
-                SELECT g.*, m.*
+                SELECT g.id, g.model_id, g.name, g.cnt, g.won, m.id AS model_id, m.purchase_date, m.weekday, m.predict_bool, m.img_src
                 FROM goods g
                 JOIN model m ON g.model_id = m.id
                 WHERE m.predict_bool = TRUE
@@ -122,24 +122,45 @@ async def get_model_result(
     ### 그 전에 확인 : 리턴값을 pd.dataframe(리턴값) 했을 때 바로 가능하도록 만들어서 보내기
 
 @app.post("/labels/")
-async def upload_image(
-    labels: str = Form(...)
+async def update_labels(
+    labels: str = Form(...),
 ):
+    print(labels)
+    labels = labels.replace("'",'"')  # 문자열에서 작은따옴표를 큰따옴표로 변환
     try:
         label_data = json.loads(labels)  # labels는 문자열로 전달되기 때문에 JSON으로 변환
-
+        label_data = label_data['labels']
+        
+        # 모델에서 예측된 가장 최근의 id를 가져오는 쿼리
         conn = pymysql.connect(**DB_CONFIG)
         with conn:
             with conn.cursor() as cursor:
+                # 가장 최근의 id 값을 가져오는 쿼리 실행
+                sql_get_id = """
+                    SELECT m.id
+                    FROM model m
+                    WHERE m.predict_bool = TRUE
+                    ORDER BY m.id DESC
+                    LIMIT 1;
+                """
+                cursor.execute(sql_get_id)
+                result = cursor.fetchone()
+
+                if not result:
+                    raise HTTPException(status_code=404, detail="No model result found with predict_bool=True")
+                
+                # 가져온 id를 변수에 저장
+                model_id = result['id']
+
+                # 라벨 데이터를 업데이트하는 쿼리
                 for item in label_data:
-                    sql = """
-                    INSERT INTO labels (name, cnt, won)
-                    VALUES (%s, %s, %s)
-                    ON DUPLICATE KEY UPDATE
-                    cnt = VALUES(cnt), won = VALUES(won);
+                    sql_update = """
+                    UPDATE labels
+                    SET name = %s, cnt = %s, won = %s
+                    WHERE goods_id = %s;
                     """
-                    # item에서 각각의 필드를 추출하여 SQL에 적용
-                    cursor.execute(sql, (item['nm'], item['cnt'], item['unitprice']))
+                    # UPDATE 쿼리에 model_id를 조건으로 추가
+                    cursor.execute(sql_update, (item['nm'], item['cnt'], int(item['unitprice'].replace(",", "")), model_id))
 
                 conn.commit()
 

@@ -3,10 +3,10 @@ FROM python:3.11
 WORKDIR /code
 
 RUN apt update
-RUN pip install --no-cache-dir uvicorn
-RUN pip install --no-cache-dir fastapi
-RUN pip install --no-cache-dir --upgrade pip
-RUN pip install pdm
+#RUN pip install --no-cache-dir uvicorn
+#RUN pip install --no-cache-dir fastapi
+#RUN pip install --no-cache-dir --upgrade pip
+#RUN pip install pdm
 COPY src/b_fastapi/main.py /code
 
 #COPY run.sh /code/run.sh
@@ -17,4 +17,4 @@ COPY requirements.txt /code/requirements.txt
 
 RUN pip install -r /code/requirements.txt
 
-CMD ["pdm", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002", "--reload"]
