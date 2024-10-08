@@ -17,7 +17,7 @@ DB_CONFIG = {
     "cursorclass": pymysql.cursors.DictCursor
 }
 # 업로드 디렉토리 설정 (환경 변수에서 가져오거나 기본값 사용)
-upload_directory = os.getenv('UPLOAD_DIR', '/home/joo/code/DE32-3nd-team1/b_fastapi/uploaded_images')
+upload_directory = os.getenv('UPLOAD_DIR', ' home/ubuntu/images')
 # 이미지 업로드 엔드포인트
 @app.post("/upload_image/")
 async def upload_image(
