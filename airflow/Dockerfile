@@ -1,7 +1,16 @@
 FROM apache/airflow:2.6.1
+
+COPY src/airflow/dags/model.py /opt/airflow/dags/model.py
+COPY src/airflow/dags/amount.py /opt/airflow/dags/amount.py
+COPY src/airflow/dags/pyspark_receipt.py /opt/airflow/dags/pyspark_receipt.py
+
+COPY requirements.txt /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt
+
 USER root
 
 RUN apt-get update \
+  && apt-get -y install wget ssh curl openjdk-11-jdk python3-pip \
   && apt-get install -y --no-install-recommends \
         vim \
   && apt-get autoremove -yqq --purge \
@@ -9,11 +18,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # airflow 사용자로 변경하여 pip 패키지 설치
-USER airflow
-
-COPY src/airflow/dags/ /opt/airflow/dags/
-COPY requirements.txt /requirements.txt
-RUN pip install --no-cache-dir -r /requirements.txt
+#USER airflow
 
 ## SPARK
 # Spark 다운로드 및 설치
