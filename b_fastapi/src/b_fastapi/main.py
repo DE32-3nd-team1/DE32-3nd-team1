@@ -19,7 +19,7 @@ DB_CONFIG = {
     "cursorclass": pymysql.cursors.DictCursor
 }
 # 업로드 디렉토리 설정 (환경 변수에서 가져오거나 기본값 사용)
-upload_directory = os.getenv('UPLOAD_DIR', ' home/ubuntu/images')
+upload_directory = os.getenv('UPLOAD_DIR', 'home/ubuntu/images')
 # 이미지 업로드 엔드포인트
 @app.post("/upload_image/")
 async def upload_image(
@@ -58,20 +58,47 @@ async def upload_image(
         raise HTTPException(status_code=400, detail=f"Invalid date or time format: {str(e)}")
 
     # 데이터베이스에 파일 경로 및 구매 정보 저장
-    try:
+    try: 
         conn = pymysql.connect(**DB_CONFIG)
         with conn:
             with conn.cursor() as cursor:
-                sql = """
+
+                sql_insert_model = """
                     INSERT INTO model (purchase_date, weekday, predict_bool, img_src)
                     VALUES (%s, %s, %s, %s)
                 """
-                predict_bool = False  
-                cursor.execute(sql, (purchase_date.strftime("%Y-%m-%d %H:%M:%S"), weekday, predict_bool, img_src))
+                predict_bool = False
+                cursor.execute(sql_insert_model, (purchase_date.strftime("%Y-%m-%d %H:%M:%S"), weekday, predict_bool, img_src))
+                conn.commit()
+
+                # 삽입된 model 테이블의 ID 값 가져오기
+                model_id = cursor.lastrowid
+                #print(f"Inserted model_id: {model_id}")
+
+                # goods 테이블에서 model_id와 연관된 상품들의 금액 합계를 계산
+                sql_sum_won = """
+                    SELECT COALESCE(SUM(won), 0) AS total_won
+                    FROM goods
+                    WHERE model_id = %s;
+                """
+                cursor.execute(sql_sum_won, (model_id,))
+                result = cursor.fetchone()
+                total_won = result['total_won'] if result and result['total_won'] else 0
+                #print(f"Calculated total_won: {total_won}")
+                
+                # model 테이블의 total 필드 업데이트
+                sql_update_model = """
+                    UPDATE model
+                    SET total = %s
+                    WHERE id = %s;
+                """
+                cursor.execute(sql_update_model, (total_won, model_id))
+                
                 conn.commit()
                 insert_row_count = cursor.rowcount  # 삽입된 행 수 확인
     except pymysql.MySQLError as e:
         raise HTTPException(status_code=500, detail=f"Database operation failed: {str(e)}")
+
 
     # 업로드 결과 반환
     return {
@@ -81,11 +108,10 @@ async def upload_image(
         "purchase_date": purchase_date.strftime("%Y-%m-%d %H:%M:%S"),
         "weekday": weekday,
         "insert_row_count": insert_row_count,
+        "total_won": total_won
     }
-@app.post("/model_result/")
-async def get_model_result(
-    predict: bool = Form(...),  # Form 필드로 예측 여부를 받음
-):
+@app.post("/model_result/") # 모델예측값 관리자페이지로 전송
+async def get_model_result():
     try:
         conn = pymysql.connect(**DB_CONFIG)
         with conn:
