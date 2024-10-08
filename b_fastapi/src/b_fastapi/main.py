@@ -1,9 +1,11 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 import os
 import shutil
 import pymysql
 from datetime import datetime
 import uuid
+import pandas as pd
+import json
 
 app = FastAPI()
 
@@ -80,3 +82,72 @@ async def upload_image(
         "weekday": weekday,
         "insert_row_count": insert_row_count,
     }
+@app.post("/model_result/")
+async def get_model_result(
+    predict: bool = Form(...),  # Form 필드로 예측 여부를 받음
+):
+    try:
+        conn = pymysql.connect(**DB_CONFIG)
+        with conn:
+            with conn.cursor() as cursor:
+                # SQL 쿼리: 예측 여부가 True이고 id 값이 가장 큰 레코드 조회
+                sql = """
+                SELECT g.*, m.*
+                FROM goods g
+                JOIN model m ON g.model_id = m.id
+                WHERE m.predict_bool = TRUE
+                ORDER BY m.id DESC
+                LIMIT 1;
+                """
+                cursor.execute(sql)
+                result = cursor.fetchone()  # 가장 큰 id 하나만 가져옴, 쿼리결과
+
+                if not result:
+                    raise HTTPException(status_code=404, detail="No results found")
+
+                # pandas dataframe으로 변환
+                df = pd.DataFrame([result])
+
+    except pymysql.MySQLError as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+    # 리턴 값을 JSON 형태로 Streamlit에 보내기
+    return df.to_json(orient="records")
+    
+
+    ### SQL SELECT 사용해서 예측여부가 True인 것들 중 id 값이 가장 큰 것 가지고 오기
+    ### goods, model 을 join 하고 key 값은 외래키 model_id
+    ### SELECT 문의 return 값이 있겠쥬
+    ### 위 리턴값을 json 형태로 streamlit에 보내주기 (return 뒤에 써주면 됨)
+    ### 그 전에 확인 : 리턴값을 pd.dataframe(리턴값) 했을 때 바로 가능하도록 만들어서 보내기
+
+@app.post("/labels/")
+async def upload_image(
+    labels: str = Form(...)
+):
+    try:
+        label_data = json.loads(labels)  # labels는 문자열로 전달되기 때문에 JSON으로 변환
+
+        conn = pymysql.connect(**DB_CONFIG)
+        with conn:
+            with conn.cursor() as cursor:
+                for item in label_data:
+                    sql = """
+                    INSERT INTO labels (name, cnt, won)
+                    VALUES (%s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    cnt = VALUES(cnt), won = VALUES(won);
+                    """
+                    # item에서 각각의 필드를 추출하여 SQL에 적용
+                    cursor.execute(sql, (item['nm'], item['cnt'], item['unitprice']))
+
+                conn.commit()
+
+    except pymysql.MySQLError as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    
+    return {"message": "success"}
+
+### SQL INSERT 사용해서 Label 테이블에 변경된 데이터를 고치기
+### return에는 간단하게 잘 보내졌다고 알려주삼 ex) message : success
+
