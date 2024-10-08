@@ -1,5 +1,6 @@
 FROM apache/airflow:2.6.1
 USER root
+RUN mkdir -p /home/ubuntu/images/
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
         vim \
