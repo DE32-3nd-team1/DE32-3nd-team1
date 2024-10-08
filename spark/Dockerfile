@@ -30,6 +30,7 @@ ENV SPARK_NO_DAEMONIZE=true
 # DAG 파일 복사
 COPY ./dags/pyspark_receipt.py ./dags/pyspark_receipt.py
 COPY ./py/amount.py ./py/amount.py
+COPY requirements.txt requirements.txt
 
 # Spark 관련 디렉토리 생성 및 권한 부여
 RUN mkdir -p /opt/airflow/spark-3.5.1-bin-hadoop3/logs /opt/airflow/spark-3.5.1-bin-hadoop3/work /dags /logs \
@@ -39,4 +40,4 @@ RUN mkdir -p /opt/airflow/spark-3.5.1-bin-hadoop3/logs /opt/airflow/spark-3.5.1-
 
 USER "${AIRFLOW_UID:-50000}:0"
 #RUN pip install PyMySQL
-RUN pip install --no-cache-dir --upgrade git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@pyspark
+RUN pip install --no-cache-dir --upgrade -r /opt/airflow/requirements.txt

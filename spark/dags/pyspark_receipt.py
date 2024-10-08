@@ -23,7 +23,7 @@ with DAG(
     task_spark = BashOperator(
             task_id = 'task_spark',
             bash_command='''
-            $SPARK_HOME/bin/spark-submit /opt/airflow/py/amount.py
+            $SPARK_HOME/bin/spark-submit --conf "spark.pyspark.driver.python=/usr/local/bin/python3" --conf "spark.pyspark.python=/usr/local/bin/python3" /opt/airflow/py/amount.py
             '''
             )
 
