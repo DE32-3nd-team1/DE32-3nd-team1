@@ -11,7 +11,7 @@ RUN apt-get update \
 # airflow 사용자로 변경하여 pip 패키지 설치
 USER airflow
 
-COPY src/airaflow/dags /opt/airflow/dags/
+COPY src/airaflow/dags/ /opt/airflow/dags/
 COPY requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -r /requirements.txt
 
