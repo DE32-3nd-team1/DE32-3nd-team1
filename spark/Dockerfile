@@ -37,7 +37,6 @@ RUN mkdir -p /opt/airflow/spark-3.5.1-bin-hadoop3/logs /opt/airflow/spark-3.5.1-
   && chmod -R 755 /opt/airflow /dags /logs \
   && chmod -R 755 /opt/airflow/spark-3.5.1-bin-hadoop3/logs /opt/airflow/spark-3.5.1-bin-hadoop3/work
 
+RUN pip install --no-cache-dir --upgrade git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@pyspark
 USER "${AIRFLOW_UID:-50000}:0"
 
-RUN apt-get update && apt-get install -y git
-RUN pip install --no-cache-dir --upgrade git+https://github.com/DE32-3nd-team1/DE32-3nd-team1.git@pyspark
