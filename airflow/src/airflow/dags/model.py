@@ -8,8 +8,11 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.python import PythonVirtualenvOperator
 from airflow.providers.mysql.hooks.mysql import MySqlHook
 from donut import DonutModel
-from PIL import Image
 import torch
+from PIL import Image
+import re
+from transformers import DonutProcessor, VisionEncoderDecoderModel
+
 
 # MariaDB 연결을 생성하는 함수 정의
 @provide_session
@@ -64,27 +67,48 @@ with DAG(
         for record in records:
             print(record)  # 데이터를 출력하거나 원하는 처리를 수행
 
-    model = DonutModel.from_pretrained("naver-clova-ix/donut-base-finetuned-cord-v2")
+    
 
-    def donut():
+    def donut(path):
+        processor = DonutProcessor.from_pretrained("naver-clova-ix/donut-base-finetuned-cord-v2")
+        model = VisionEncoderDecoderModel.from_pretrained("naver-clova-ix/donut-base-finetuned-cord-v2")
 
-        if torch.cuda.is_available():
-            model.half()
-            device = torch.device("cuda")
-            model.to(device)
-        else:
-            device = torch.device("cpu")
-            model.encoder.to(torch.float)
-            model.to(device)
+        # 이미지 불러오기
+        image = Image.open(path).convert('RGB')
+        pixel_values = processor(image, return_tensors="pt").pixel_values
 
-        model.eval() 
+        task_prompt = "<s_cord-v2>"
+        decoder_input_ids = processor.tokenizer(
+            task_prompt,
+            add_special_tokens=False,
+            return_tensors="pt").input_ids
 
-    def process(path):
-        image = Image.open(path).convert("RGB")
-        output = model.inference(image=image, prompt="<s_cord-v2>")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        model.to(device)
 
-        return output
+        outputs = model.generate(
+            pixel_values.to(device),
+            decoder_input_ids = decoder_input_ids.to(device),
+            max_length = model.decoder.config.max_position_embeddings,
+            early_stopping=True,
+            pad_token_id=processor.tokenizer.pad_token_id,
+            eos_token_id=processor.tokenizer.eos_token_id,
+            use_cache=True,
+            num_beams=1,
+            bad_words_ids=[[processor.tokenizer.unk_token_id]],
+            return_dict_in_generate=True,
+        )
 
+        sequence = processor.batch_decode(outputs.sequences)[0]
+        sequence = sequence.replace(processor.tokenizer.eos_token, "").replace(processor.tokenizer.pad_token, "")
+        sequence = re.sub(r"<.*?>", "", sequence, count=1).strip()  # remove first task start token
+
+        # 결과 뽑기
+        import json
+
+        result = processor.token2json(sequence)
+        print("*"*1000)
+        print(json.dumps(result, indent = 4 ,ensure_ascii=False))
 
     # MariaDB 연결
     create_connection_task = PythonOperator(
@@ -104,7 +128,7 @@ with DAG(
     donut_task = PythonOperator(
         task_id='donut',
         python_callable=donut,
-        provide_context=True,
+        op_args=['/opt/airflow/dags/test.png'],
     )
 
     # EmptyOperator로 시작과 끝 설정
@@ -112,4 +136,5 @@ with DAG(
     task_end = EmptyOperator(task_id='end', trigger_rule="all_done")
 
     # 작업 순서 설정
-    task_start >> create_connection_task >> fetch_data_task >> donut_task >> task_end
+    task_start >> create_connection_task >> donut_task >> fetch_data_task  >> task_end
+
