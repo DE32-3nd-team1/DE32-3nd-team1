@@ -14,7 +14,6 @@ with DAG(
         'retry_delay': timedelta(seconds=3)
     }),
     description='spark statistics',
-    schedule_interval=timedelta(minutes=3),
     start_date=datetime(2024, 10, 7),
     schedule_interval = '*/5 * * * *',
     catchup=True,
