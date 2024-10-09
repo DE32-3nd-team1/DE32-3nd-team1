@@ -11,7 +11,7 @@ app = FastAPI()
 
 # 데이터베이스 설정
 DB_CONFIG = {
-    "host": os.getenv("DB", "43.203.236.175"),
+    "host": os.getenv("DB", "13.125.51.70"),
     "user": "team1",
     "password": "1234",
     "database": "team1",
@@ -28,7 +28,6 @@ async def upload_image(
     time: str = Form(...),
     weekday: str = Form(...)
 ):
-    # 허용된 이미지 확장자 목록
     allowed_extensions = {"jpeg", "jpg", "png"}
 
     # 파일 확장자 확인
@@ -38,7 +37,6 @@ async def upload_image(
 
     os.makedirs(upload_directory, exist_ok=True)  # 디렉토리가 없으면 생성
 
-    # 고유한 파일명 생성 (UUID 사용)
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
     img_src = os.path.join(upload_directory, unique_filename)
 
@@ -50,7 +48,6 @@ async def upload_image(
         raise HTTPException(status_code=500, detail=f"File saving failed: {str(e)}")
 
 
-    # 날짜와 시간 데이터 합치기 및 유효성 검사
     try:
         # date와 time을 합쳐서 purchase_date 생성
         purchase_date = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M:%S")
@@ -118,7 +115,7 @@ async def get_model_result():
             with conn.cursor() as cursor:
                 # SQL 쿼리: 예측 여부가 True이고 id 값이 가장 큰 레코드 조회
                 sql = """
-                SELECT g.id, g.model_id, g.name, g.cnt, g.won, m.id AS model_id, m.purchase_date, m.weekday, m.predict_bool, m.img_src
+                SELECT g.*, m.*
                 FROM goods g
                 JOIN model m ON g.model_id = m.id
                 WHERE m.predict_bool = TRUE
@@ -156,37 +153,18 @@ async def update_labels(
     try:
         label_data = json.loads(labels)  # labels는 문자열로 전달되기 때문에 JSON으로 변환
         label_data = label_data['labels']
-        
-        # 모델에서 예측된 가장 최근의 id를 가져오는 쿼리
         conn = pymysql.connect(**DB_CONFIG)
         with conn:
             with conn.cursor() as cursor:
-                # 가장 최근의 id 값을 가져오는 쿼리 실행
-                sql_get_id = """
-                    SELECT m.id
-                    FROM model m
-                    WHERE m.predict_bool = TRUE
-                    ORDER BY m.id DESC
-                    LIMIT 1;
-                """
-                cursor.execute(sql_get_id)
-                result = cursor.fetchone()
-
-                if not result:
-                    raise HTTPException(status_code=404, detail="No model result found with predict_bool=True")
-                
-                # 가져온 id를 변수에 저장
-                model_id = result['id']
-
-                # 라벨 데이터를 업데이트하는 쿼리
                 for item in label_data:
-                    sql_update = """
-                    UPDATE labels
-                    SET name = %s, cnt = %s, won = %s
-                    WHERE goods_id = %s;
+                    sql = """
+                    UPDATE labels SET (name, cnt, won)
+                    VALUES (%s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    cnt = VALUES(cnt), won = VALUES(won);
                     """
-                    # UPDATE 쿼리에 model_id를 조건으로 추가
-                    cursor.execute(sql_update, (item['nm'], item['cnt'], int(item['unitprice'].replace(",", "")), model_id))
+                    # item에서 각각의 필드를 추출하여 SQL에 적용
+                    cursor.execute(sql, (item['nm'], item['cnt'],int(item['unitprice'].replace(",", ""))))
 
                 conn.commit()
 
@@ -194,7 +172,6 @@ async def update_labels(
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     
     return {"message": "success"}
-
 ### SQL INSERT 사용해서 Label 테이블에 변경된 데이터를 고치기
 ### return에는 간단하게 잘 보내졌다고 알려주삼 ex) message : success
 
