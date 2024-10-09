@@ -218,8 +218,10 @@ async def get_accuracy_percentage():
                 # 정확도 비율 계산
                 accuracy_percentage = (total_correct / total_possible) * 100
 
-    except pymysql.MySQLError as e:
+    except (pymysql.MySQLError, mariadb.Error) as e:
+        print(e)
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 
     # 정확도 비율을 JSON으로 반환
     return {"accuracy_percentage": round(accuracy_percentage, 2)}
