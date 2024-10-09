@@ -17,11 +17,16 @@ file_path = ""
 
 # 예측결과가 True인 것들 중에서 num의 값이 가장 큰 것
 def request_model_result():
-    url = f"{base_url}/model_result"
-    response = requests.get(url, params={"key1": "1", "key2": "1"})  # 키를 적절히 수정하세요
+    try:
+        url = f"{base_url}/model_result"
+        print("===="*44)
+        response = requests.get(url, params={"key1": "1", "key2": "1"})  # 키를 적절히 수정하세요
     #response = [{"id":5,"model_id":1,"name":"샀원명","cnt":1,"won":1500,"m.id":1,"purchase_date":"2024-10-07 00:00:00","weekday":"","predict_bool":1,"img_src":"home/ubuntu/images/test1.png"}]
-   
-    if response.status_code != 200:
+        print("===="*44)
+        print(response) 
+    except requests.exceptions.RequestException as e:
+        #if response.status_code != 200:
+        print(e)
         data = {"nm": ["현대)더커진진주탱초불그룹", "동아)박카스밧텡크릴리40g", "서울)커피우유300ml"],"unitprice": ["1,700", "2,500", "2,000"],"cnt": ["1", "1", "1"],"price": ["1,700", "2,500", "8,545"]}
         print(type(data))
         df = pd.DataFrame(data)
@@ -74,16 +79,6 @@ def submit_labels_to_api(labels):
     else:
         return {"error": "Failed to submit datetime"}
 
-def fit2dataframe(data):
-    transformed_data = {
-        "nm": [item["nm"] for item in data],
-        "unitprice": [item["unitprice"] for item in data],
-        "cnt": [item["cnt"] for item in data],
-        "price": [item["price"] for item in data]
-    }
-    print(transformed_data)
-    return transformed_data
-
 # request하기 -> 에측 여부가 true인 것 중 제일 마지막 
 df = request_model_result()
 
@@ -104,25 +99,29 @@ with col2:
     
     edited_df = st.data_editor(df, num_rows="dynamic", key="editable_table")
     col3, col4 = st.columns(2)
-    # '변경 완료' 버튼
+        # '변경 완료' 버튼
     with col3:
-        if st.button("변경본 제출"):
-            print("url 요청 - 수정된 데이터")
-            # 수정된 데이터 전송 로직 추가
-            edited_df = pd.DataFrame(edited_df)
-            json_data = edited_df.to_json(orient="records", force_ascii=False)
-            response = submit_labels_to_api(json_data)
-            st.success("정정 데이터를 성공적으로 제출했습니다.")
-
+        try:    
+            if st.button("변경본 제출"):
+                print("url 요청 - 수정된 데이터")
+                # 수정된 데이터 전송 로직 추가
+                edited_df = pd.DataFrame(edited_df)
+                json_data = edited_df.to_json(orient="records", force_ascii=False)
+                response = submit_labels_to_api(json_data)
+                st.success("정정 데이터를 성공적으로 제출했습니다.")
+        except: 
+            st.write("잠시 후에 다시 시도해주세요")
     with col4:
+        try:
         # '그대로 제출' 버튼
-        if st.button("원본 제출"):
-            print("url 요청 - 원본 데이터")
-            # 원본 데이터 전송 로직 추가
-            json_data = df.to_json(orient="records", force_ascii=False)
-            response = submit_labels_to_api(json_data)
-            st.success("기본 데이터를 성공적으로 제출했습니다.")
-
+            if st.button("원본 제출"):
+                print("url 요청 - 원본 데이터")
+                # 원본 데이터 전송 로직 추가
+                json_data = df.to_json(orient="records", force_ascii=False)
+                response = submit_labels_to_api(json_data)
+                st.success("기본 데이터를 성공적으로 제출했습니다.")
+        except:
+            st.write("잠시 후에 다시 시도해주세요")
 
 # 이미지 파일을 불러오는 로직
 if file_path == "":

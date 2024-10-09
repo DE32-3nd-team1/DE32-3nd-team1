@@ -46,10 +46,8 @@ if date:
 # 모든 값이 입력된 경우 FastAPI로 전송
 if all([uploaded_file, date, time]):
     # FastAPI 서버로 POST 요청 보내기
-    response = submit_img_datetime_to_api(uploaded_file,date,time, weekday)
-
-    # 서버 응답 출력
-    if "error" in response:
-        st.write(response["error"])
-    else:
+    try:
+        response = submit_img_datetime_to_api(uploaded_file,date,time, weekday)    
         st.write("File uploaded successfully!")
+    except:
+        st.write("잠시 후에 시도해주세요")
