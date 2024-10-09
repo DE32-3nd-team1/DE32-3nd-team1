@@ -191,3 +191,35 @@ async def upload_image(request: Request):
 
 ### SQL INSERT 사용해서 Label 테이블에 변경된 데이터를 고치기
 ### return에는 간단하게 잘 보내졌다고 알려주삼 ex) message : success
+
+@app.get("/accuracy")
+async def get_accuracy_percentage():
+    try:
+        # DB 연결
+        conn = pymysql.connect(**DB_CONFIG)
+        with conn:
+            with conn.cursor() as cursor:
+                # SQL 쿼리: accuracy_scores 테이블에서 가장 최근 model_id에 대한 데이터 가져오기
+                sql = """
+                SELECT name_score, count_score, amount_score
+                FROM accuracy_scores
+                WHERE model_id = (SELECT MAX(model_id) FROM accuracy_scores)
+                """
+                cursor.execute(sql)
+                results = cursor.fetchall()
+
+                if not results:
+                    raise HTTPException(status_code=404, detail="No accuracy data found for the model")
+
+                # 맞은 수량 계산
+                total_correct = sum(row[0] + row[1] + row[2] for row in results)  # 각 행의 name, count, amount 점수 합계
+                total_possible = len(results) * 3  # 각 행당 3개의 점수 가능 (name_score, count_score, amount_score)
+
+                # 정확도 비율 계산
+                accuracy_percentage = (total_correct / total_possible) * 100
+
+    except pymysql.MySQLError as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+    # 정확도 비율을 JSON으로 반환
+    return {"accuracy_percentage": round(accuracy_percentage, 2)}
