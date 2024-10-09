@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 import pymysql
+import os
 
 spark = SparkSession.builder.appName("joinDF").getOrCreate()
 
@@ -36,7 +37,13 @@ def dml(sql, *values):
 
 sql_first = "select id from model WHERE predict_bool=1 AND total IS NULL ORDER BY id LIMIT 1"
 photo_id = select(sql_first, size = 1)
-print(photo_id)
-
-sql_second = f"select * from goods WHERE model_id={photo_id}"
-                                  
+#print(photo_id)
+sum_result = spark.sql(
+        f"select SUM(won) from goods WHERE model_id={photo_id['id']}"
+        )
+sum_won = sum_result.collect()[0][0]
+#price = select(sql_second, size = 1)
+sql_second = "UPDATE model SET total = %s WHERE id = %s"
+insert_loop = 1
+for _ in range(insert_loop):
+        insert_row = dml(sql_second, sum_won, photo_id['id'])
