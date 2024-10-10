@@ -12,11 +12,12 @@ with DAG(
         'depends_on_past': True,
         'retries': 1,
         'retry_delay': timedelta(seconds=3)
-    }),
+    },
     description='spark statistics',
-    schedule_interval=timedelta(minutes=3),
     start_date=datetime(2024, 10, 7),
     schedule_interval = '*/5 * * * *',
+    max_active_runs=1,
+    max_active_tasks=1,
     catchup=True,
     tags=['spark']
 ) as dag:
