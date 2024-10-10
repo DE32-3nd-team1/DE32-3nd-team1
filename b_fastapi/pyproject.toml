@@ -23,6 +23,7 @@ dependencies = [
     "numpy>=1.26.4",
     "fastapi>=0.115.0",
     "pandas>=2.2.3",
+    "mariadb>=1.1.10",
 ]
 requires-python = "==3.11.*"
 readme = "README.md"

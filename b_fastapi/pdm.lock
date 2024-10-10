@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:06899c56973748277022b1b21b17dba30d68af390cfdfa74bbb5aace7325e7d4"
+content_hash = "sha256:46d81989de0514b08499e2349599d026fe445d0b515ef97477879e6429b1e550"
 
 [[metadata.targets]]
 requires_python = "==3.11.*"
@@ -430,6 +430,21 @@ files = [
     {file = "libclang-18.1.1-py2.py3-none-win_amd64.whl", hash = "sha256:4dd2d3b82fab35e2bf9ca717d7b63ac990a3519c7e312f19fa8e86dcc712f7fb"},
     {file = "libclang-18.1.1-py2.py3-none-win_arm64.whl", hash = "sha256:3f0e1f49f04d3cd198985fea0511576b0aee16f9ff0e0f0cad7f9c57ec3c20e8"},
     {file = "libclang-18.1.1.tar.gz", hash = "sha256:a1214966d08d73d971287fc3ead8dfaf82eb07fb197680d8b3859dbbbbf78250"},
+]
+
+[[package]]
+name = "mariadb"
+version = "1.1.10"
+requires_python = ">=3.8"
+summary = "Python MariaDB extension"
+groups = ["default"]
+dependencies = [
+    "packaging",
+]
+files = [
+    {file = "mariadb-1.1.10-cp311-cp311-win32.whl", hash = "sha256:1ce87971c02375236ff8933e6c593c748e7b2f2950b86eabfab4289fd250ea63"},
+    {file = "mariadb-1.1.10-cp311-cp311-win_amd64.whl", hash = "sha256:4521aa721f926946bd71491f872e8babc78fa97755ed2114f5684b77363107cb"},
+    {file = "mariadb-1.1.10.tar.gz", hash = "sha256:a332893e3ef7ceb7970ab4bd7c844bcb4bd68a051ca51313566f9808d7411f2d"},
 ]
 
 [[package]]

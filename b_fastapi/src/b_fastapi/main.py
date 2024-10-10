@@ -6,7 +6,6 @@ from datetime import datetime
 import uuid
 import pandas as pd
 import json
-import mariadb
 
 app = FastAPI()
 
@@ -105,7 +104,7 @@ async def upload_image(
                 
                 conn.commit()
                 insert_row_count = cursor.rowcount  # 삽입된 행 수 확인
-    except (pymysql.MySQLError, mariadb.Error) as e:
+    except pymysql.MySQLError as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
@@ -144,9 +143,8 @@ async def get_model_result():
                 # pandas dataframe으로 변환
                 df = pd.DataFrame(results)
 
-    except (pymysql.MySQLError, mariadb.Error) as e:
+    except pymysql.MySQLError as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-
 
     # 리턴 값을 JSON 형태로 Streamlit에 보내기
     return df.to_json(orient="records")
@@ -182,8 +180,7 @@ async def upload_image(request: Request):
 
                 conn.commit()
 
-    except (pymysql.MySQLError, mariadb.Error) as e:
-        print(e)
+    except pymysql.MySQLError as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
@@ -218,8 +215,7 @@ async def get_accuracy_percentage():
                 # 정확도 비율 계산
                 accuracy_percentage = (total_correct / total_possible) * 100
 
-    except (pymysql.MySQLError, mariadb.Error) as e:
-        print(e)
+    except pymysql.MySQLError as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
