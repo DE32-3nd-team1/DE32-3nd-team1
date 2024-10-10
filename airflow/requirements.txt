@@ -1,0 +1,5 @@
+donut-python
+Pillow
+torch
+pandas
+PyMySQL>=1.1.1
