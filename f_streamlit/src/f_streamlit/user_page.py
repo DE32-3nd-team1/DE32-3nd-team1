@@ -8,7 +8,7 @@ base_url = os.getenv("FASTAPI_URL") + ":" + str(os.getenv("FASTAPI_PORT"))
 
 # FastAPI 서버로 datetime을 전송하는 함수
 def submit_img_datetime_to_api(file, date, time, weekday):
-    url = f"{base_url}/upload_image/"
+    url = f"{base_url}/upload_image"
     
     # 파일 전송을 위한 multipart/form-data 준비
     files = {
