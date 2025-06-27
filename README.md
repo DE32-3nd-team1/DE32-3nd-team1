@@ -64,13 +64,22 @@ Frontend, Backend와 Airflow, Pyspark까지 각각의 기능을 전부 Dockerizi
 **Docker run** : `$ docker run -d -p 8501:8501 --name streamlit -v /home/ubuntu/images:/home/ubuntu/images -e FASTAPI_URL="http://172.31.10.216" -e FASTAPI_PORT=8002 lsiwh37249/f_streamlit:0.1.4`
 ### Airflow Install:
 **Docker pull** : `$ docker pull sooj1n/airflow:0.3.1`<br />
+
+## test.png download and move to home/$(whoami) // wsl2 ubuntu에서 테스트 성공했습니다.
+![test](https://github.com/user-attachments/assets/d36fae65-2616-4dfc-94ce-8f6bf0b25426)
+
 **Docker run** : 
 ```bash
 $ sudo docker run -d -p 8080:8080 \
--v /home/ubuntu/images/:/home/ubuntu/images/ \
+-v /home/$(whoami)/images/:/home/$(whoami)/images/ \
+-v /home/$(whoami)/test.png:/opt/airflow/dags/test.png \
 --name airflow sooj1n/airflow:0.3.1 \
 bash -c "airflow db init; airflow users create --username admin --password admin --firstname Anonymous --lastname Admin --role Admin --email test@test.com && airflow webserver & airflow scheduler"
 ```
+
+
+
+
 
 ## 프레젠테이션
 [팀ppt](https://docs.google.com/presentation/d/1eEjRoTl1rVfWlgvs5Na0BdWhGG5vo6vbI2_LrgWT-0c/edit#slide=id.g2f9df5f8404_1_75)
