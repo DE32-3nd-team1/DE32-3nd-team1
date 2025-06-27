@@ -61,7 +61,7 @@ Frontend, Backend와 Airflow, Pyspark까지 각각의 기능을 전부 Dockerizi
 **Docker run** : `$ sudo docker run -p 8501:8501 --name streamlit lsiwh37249/f_team1`
 ### Backend Install
 **Docker pull** : `$ docker pull baechu805/b_team1:0.1.2`<br />
-**Docker run** : `$ docker run -d -p 8501:8501 --name streamlit -v /home/ubuntu/images:/home/ubuntu/images -e FASTAPI_URL="http://172.31.10.216" -e FASTAPI_PORT=8002 lsiwh37249/f_streamlit:0.1.4
+**Docker run** : `$ docker run -d -p 8501:8501 --name streamlit -v /home/ubuntu/images:/home/ubuntu/images -e FASTAPI_URL="http://172.31.10.216" -e FASTAPI_PORT=8002 lsiwh37249/f_streamlit:0.1.4`
 ### Airflow Install:
 **Docker pull** : `$ docker pull sooj1n/airflow:0.3.1`<br />
 **Docker run** : 
